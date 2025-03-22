@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnxiPredoMeter - Know Your Anxiety Score</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h1 class="logo">AnxiPredoMeter</h1>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Greeting Section -->
+    <section class="greeting-section">
+        <h1 id="greeting-text">Welcome to AnxiPredoMeter!</h1>
+        <p class="greeting-subtext">Your trusted platform for anxiety disorder prediction using EEG signals.</p>
+    </section>
+
+    <div class="container">
+        <h1 class="title">Anxiety Disorder Prediction</h1>
+        <p class="subtitle">Enter your EEG signals and check your anxiety level</p>
+
+        <div class="input-section">
+            <label>Beta Waves</label>
+            <input type="number" id="beta" placeholder="Enter Beta Value" required>
+
+            <label>Gamma Waves</label>
+            <input type="number" id="gamma" placeholder="Enter Gamma Value" required>
+
+            <label>Delta Waves</label>
+            <input type="number" id="delta" placeholder="Enter Delta Value" required>
+
+            <label>Alpha Waves</label>
+            <input type="number" id="alpha" placeholder="Enter Alpha Value" required>
+
+            <label>Theta Waves</label>
+            <input type="number" id="theta" placeholder="Enter Theta Value" required>
+
+            <button onclick="predictAnxiety()">Predict Anxiety</button>
+        </div>
+
+        <section id="loading" class="hidden loading">⏳ Analyzing...</section>
+
+        <div id="result" class="hidden">
+            <h2>Prediction Results:</h2>
+            <p id="predictionText"></p>
+        </div>
+    </div>
+    <!-- 🩺 Recommended Doctors Section -->
+<section id="doctor-recommendation" class="hidden">
+    <h2>🩺 Recommended Anxiety Specialists</h2>
+    <div class="doctor-container" id="doctor-list"></div>
+</section>
+
+<!-- ✅ Main AI Chatbot (Bottom-Right) -->
+<div id="main-chatbot-container">
+    <button id="main-chatbot-button">💬</button>
+    <div id="main-chatbot-box">
+        <iframe 
+            id="main-chatbot-iframe"
+            src="https://studio.d-id.com/agents/share?id=agt_NVjYp-gk&utm_source=copy&key=WVhWMGFEQjhOamRrWkdZMk1EVTJaVFpsWXpJMU5tUmhOekpsWkdRM09rZDJRbVl5WkZWdVpraDRURGhFVGpRNFpHTlJRZz09"
+            width="100%" height="100%" style="border:none; border-radius:10px;">
+        </iframe>
+    </div>
+</div>
+
+
+<!-- ✅ Doctor Chatbot Containers (Will be dynamically added) -->
+<div id="doctor-chatbot-container"></div>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>© 2023 AnxiPredoMeter. All rights reserved.</p>
+        <p>Developed and Designed by <strong>TYBTECH RIT-CSE Team</strong></p>
+    </footer>
+
+    <script>
+        document.getElementById("chatbot-button").addEventListener("click", function() {
+        let chatbotBox = document.getElementById("chatbot-box");
+        chatbotBox.classList.toggle("active"); // Toggle chatbot visibility
+    });
+        // 🆕 Dynamic Greeting Based on Time
+        function updateGreeting() {
+            const greetingText = document.getElementById("greeting-text");
+            const hour = new Date().getHours();
+            if (hour < 12) {
+                greetingText.innerText = "Good Morning! Welcome to AnxiPredoMeter!";
+            } else if (hour < 18) {
+                greetingText.innerText = "Good Afternoon! Ready to check your anxiety level?";
+            } else {
+                greetingText.innerText = "Good Evening! Let's analyze your EEG signals.";
+            }
+        }
+        updateGreeting(); // Call function when page loads
+
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>
