@@ -1,0 +1,52 @@
+.animation-test {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px var(--shadow-dark);
+  text-align: center;
+}
+
+.animation-test h3 {
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.animation-test p {
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.animation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  padding: 20px;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  border: 2px dashed var(--border-color);
+}
+
+.animation-status {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent-success);
+}
+
+.animation-status p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.animation-status p:first-child {
+  font-weight: 600;
+  color: var(--accent-success);
+} 

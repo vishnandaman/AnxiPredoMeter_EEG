@@ -1,0 +1,423 @@
+.realtime-test {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.test-container {
+  max-width: 800px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  position: relative;
+}
+
+.test-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  z-index: 1;
+}
+
+/* Step Indicator */
+.step-indicator {
+  padding: 24px 32px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.step-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.step-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.step-dot.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.step-dot.current {
+  transform: scale(1.3);
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.8);
+}
+
+.step-text {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Step Content */
+.step-content {
+  padding: 40px 32px;
+}
+
+.step-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.step-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  animation: fadeInUp 0.6s ease;
+}
+
+.step-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto;
+  animation: fadeInUp 0.6s ease 0.1s both;
+}
+
+/* Animation Section */
+.animation-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+  min-height: 300px;
+}
+
+.animation-container {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+  animation: fadeIn 0.6s ease;
+}
+
+.animation-glow {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(147, 51, 234, 0.1));
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  box-shadow: 
+    0 0 20px rgba(102, 126, 234, 0.2),
+    0 0 40px rgba(147, 51, 234, 0.1),
+    inset 0 0 20px rgba(102, 126, 234, 0.05);
+  animation: pulse 2s ease-in-out infinite alternate;
+}
+
+/* Form Section */
+.form-section {
+  width: 100%;
+  max-width: 600px;
+  animation: fadeInUp 0.6s ease;
+}
+
+/* Result Section */
+.result-section {
+  width: 100%;
+  max-width: 800px;
+  animation: fadeInUp 0.6s ease;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 20px;
+  color: #f87171;
+  text-align: center;
+}
+
+.analyzing-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.analyzing-message p {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Result Display */
+.result-display {
+  text-align: center;
+  animation: fadeInUp 0.6s ease;
+}
+
+.result-display h3 {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.prediction-badge {
+  display: inline-block;
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: pulse 2s infinite;
+}
+
+.prediction-badge.low-anxiety,
+.prediction-badge.low-risk {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  color: white;
+  box-shadow: 0 8px 20px rgba(74, 222, 128, 0.3);
+}
+
+.prediction-badge.moderate-anxiety,
+.prediction-badge.moderate-risk {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white;
+  box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3);
+}
+
+.prediction-badge.high-anxiety,
+.prediction-badge.high-risk {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  color: white;
+  box-shadow: 0 8px 20px rgba(248, 113, 113, 0.3);
+}
+
+/* Final Results */
+.final-results {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  max-width: 800px;
+  animation: fadeInUp 0.6s ease;
+}
+
+/* Step Actions */
+.step-actions {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.action-button:hover::before {
+  left: 100%;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+}
+
+.action-button:active {
+  transform: translateY(0);
+}
+
+.action-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-button.analyzing {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Navigation Footer */
+.navigation-footer {
+  padding: 24px 32px;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.nav-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .realtime-test {
+    padding: 10px;
+  }
+  
+  .test-container {
+    border-radius: 16px;
+  }
+  
+  .step-content {
+    padding: 24px 20px;
+  }
+  
+  .step-title {
+    font-size: 2rem;
+  }
+  
+  .step-subtitle {
+    font-size: 1rem;
+  }
+  
+  .final-results {
+    gap: 24px;
+  }
+  
+  .action-button {
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+  
+  .step-dots {
+    gap: 8px;
+  }
+  
+  .step-dot {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .step-title {
+    font-size: 1.8rem;
+  }
+  
+  .step-content {
+    padding: 20px 16px;
+  }
+  
+  .step-indicator {
+    padding: 16px 20px;
+  }
+  
+  .navigation-footer {
+    padding: 16px 20px;
+  }
+} 

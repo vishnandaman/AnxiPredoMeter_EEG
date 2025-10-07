@@ -1,0 +1,74 @@
+/* Medical Theme CSS - No Distracting Animations */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+  color: white;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Loading Animation */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #00d9ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Fade In Animation */
+.fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Medical Card Hover Effect */
+.medical-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.medical-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 217, 255, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+    margin: 10px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .subtitle {
+    font-size: 16px;
+  }
+} 

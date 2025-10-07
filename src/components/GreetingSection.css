@@ -1,0 +1,90 @@
+.greeting-section {
+  width: 100%;
+  text-align: center;
+  margin: 120px 0 40px 0;
+  padding: 20px;
+  background: var(--bg-card);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0px 0px 15px var(--shadow-dark);
+  position: relative;
+  border: 1px solid var(--border-color);
+}
+
+.greeting-content {
+  position: relative;
+  z-index: 2;
+}
+
+.greeting-icon {
+  font-size: 48px;
+  color: var(--accent-primary);
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.greeting-text {
+  font-size: 32px;
+  color: var(--accent-primary);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.greeting-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Time-based color variations */
+.greeting-section.morning .greeting-icon {
+  color: var(--accent-warning);
+}
+
+.greeting-section.afternoon .greeting-icon {
+  color: var(--accent-warning);
+}
+
+.greeting-section.evening .greeting-icon {
+  color: var(--accent-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .greeting-section {
+    margin: 100px 0 30px 0;
+    padding: 15px;
+  }
+  
+  .greeting-text {
+    font-size: 24px;
+  }
+  
+  .greeting-subtitle {
+    font-size: 14px;
+  }
+  
+  .greeting-icon {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .greeting-section {
+    margin: 80px 0 20px 0;
+    padding: 12px;
+  }
+  
+  .greeting-text {
+    font-size: 20px;
+  }
+  
+  .greeting-subtitle {
+    font-size: 12px;
+  }
+  
+  .greeting-icon {
+    font-size: 32px;
+  }
+} 
