@@ -11,12 +11,23 @@ import handSwipe from '../animations/Hand Swipe.json';
 import successAnimation from '../animations/Success.json';
 import './RealTimeTest.css';
 
+const SERVER_BASE = (
+  (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) ||
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) ||
+  (typeof window !== 'undefined' && window.REACT_APP_API_URL) ||
+  'http://172.22.48.129:5000'
+);
+
 const RealTimeTest = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [eegPrediction, setEegPrediction] = useState(null);
   const [biometricPrediction, setBiometricPrediction] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState(null);
+
+  // new states for autofill actions
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
+  const [autoFillError, setAutoFillError] = useState(null);
 
   const steps = [
     {
@@ -143,7 +154,7 @@ const RealTimeTest = () => {
     console.log('Submitting EEG data:', eegData);
     
     try {
-      const response = await fetch("http://127.0.0.1:5000/predict_eeg", {
+      const response = await fetch(`${SERVER_BASE}/predict_eeg`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -172,7 +183,7 @@ const RealTimeTest = () => {
       }
     } catch (error) {
       console.error("EEG Error:", error);
-      setError("Failed to connect to EEG prediction service. Please ensure the Flask server is running on http://127.0.0.1:5000");
+      setError(`Failed to connect to EEG prediction service. Ensure Flask running at ${SERVER_BASE}`);
     } finally {
       setIsAnalyzing(false);
       setCurrentStep(5); // Move to result step
@@ -187,7 +198,7 @@ const RealTimeTest = () => {
     console.log('Submitting biometric data:', biometricData);
     
     try {
-      const response = await fetch("http://127.0.0.1:5000/predict_combined", {
+      const response = await fetch(`${SERVER_BASE}/predict_combined`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -216,10 +227,98 @@ const RealTimeTest = () => {
       }
     } catch (error) {
       console.error("Biometric Error:", error);
-      setError("Failed to connect to biometric prediction service. Please ensure the Flask server is running on http://127.0.0.1:5000");
+      setError(`Failed to connect to biometric prediction service. Ensure Flask running at ${SERVER_BASE}`);
     } finally {
       setIsAnalyzing(false);
       setCurrentStep(10); // Move to final result
+    }
+  };
+
+  // --- New: autofill helpers ---
+  const fetchLatestEegAvg = async () => {
+    setIsAutoFilling(true);
+    setAutoFillError(null);
+    try {
+      const res = await fetch(`${SERVER_BASE}/latest_avg_eeg`);
+      if (!res.ok) throw new Error(`status ${res.status}`);
+      const payload = await res.json();
+      // unwrap { status, data } if present
+      return payload && payload.data ? payload.data : payload;
+    } catch (err) {
+      console.error('fetchLatestEegAvg error', err);
+      setAutoFillError(`Could not fetch latest EEG averages from ${SERVER_BASE}`);
+      return null;
+    } finally {
+      setIsAutoFilling(false);
+    }
+  };
+
+  const fetchLatestBiometricAvg = async () => {
+    setIsAutoFilling(true);
+    setAutoFillError(null);
+    try {
+      const res = await fetch(`${SERVER_BASE}/latest_avg_biometric`);
+      if (!res.ok) throw new Error(`status ${res.status}`);
+      const payload = await res.json();
+      return payload && payload.data ? payload.data : payload;
+    } catch (err) {
+      console.error('fetchLatestBiometricAvg error', err);
+      setAutoFillError(`Could not fetch latest biometric averages from ${SERVER_BASE}`);
+      return null;
+    } finally {
+      setIsAutoFilling(false);
+    }
+  };
+
+  const handleAutoFillAndSubmitEEG = async () => {
+    setAutoFillError(null);
+    const avg = await fetchLatestEegAvg();
+    if (avg) {
+      // auto-submit fetched average readings
+      await handleEEGSubmit(avg);
+    }
+  };
+
+  const handleAutoFillAndSubmitBiometric = async () => {
+    setAutoFillError(null);
+    const avg = await fetchLatestBiometricAvg();
+    if (avg) {
+      // auto-submit fetched average readings
+      await handleBiometricSubmit(avg);
+    }
+  };
+
+  // --- New: send combined readings to app_comined.py endpoint ---
+  const sendCombinedReadings = async () => {
+    if (!eegPrediction && !biometricPrediction) {
+      setError('No readings available to send.');
+      return;
+    }
+    setIsAnalyzing(true);
+    setError(null);
+
+    const payload = {
+      eeg: eegPrediction ? eegPrediction.data : null,
+      eeg_result: eegPrediction ? eegPrediction.result : null,
+      biometric: biometricPrediction ? biometricPrediction.data : null,
+      biometric_result: biometricPrediction ? biometricPrediction.result : null
+    };
+
+    try {
+      const res = await fetch(`${SERVER_BASE}/app_combined`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`status ${res.status}`);
+      const result = await res.json();
+      console.log('app_combined response', result);
+      if (result.error) setError('Combined app error: ' + result.error);
+    } catch (err) {
+      console.error('sendCombinedReadings error', err);
+      setError(`Failed to send combined readings. Ensure endpoint at ${SERVER_BASE}/app_combined`);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -228,6 +327,16 @@ const RealTimeTest = () => {
       case 'eeg-input':
         return (
           <div className="form-section">
+            <div style={{ marginBottom: 12 }}>
+              <button
+                className="action-button"
+                onClick={handleAutoFillAndSubmitEEG}
+                disabled={isAutoFilling || isAnalyzing}
+              >
+                {isAutoFilling ? 'Fetching averages...' : 'Autofill Latest Avg EEG'}
+              </button>
+              {autoFillError && <div className="error-message"><p>{autoFillError}</p></div>}
+            </div>
             <EEGInputForm 
               onEEGSubmit={handleEEGSubmit}
               type="eeg"
@@ -238,6 +347,16 @@ const RealTimeTest = () => {
       case 'biometric-input':
         return (
           <div className="form-section">
+            <div style={{ marginBottom: 12 }}>
+              <button
+                className="action-button"
+                onClick={handleAutoFillAndSubmitBiometric}
+                disabled={isAutoFilling || isAnalyzing}
+              >
+                {isAutoFilling ? 'Fetching averages...' : 'Autofill Latest Avg Biometric'}
+              </button>
+              {autoFillError && <div className="error-message"><p>{autoFillError}</p></div>}
+            </div>
             <BiometricInputForm 
               onBiometricSubmit={handleBiometricSubmit}
             />
@@ -283,6 +402,17 @@ const RealTimeTest = () => {
                 />
               )}
             </div>
+
+            <div style={{ marginTop: 16 }}>
+              <button
+                className="action-button"
+                onClick={sendCombinedReadings}
+                disabled={isAnalyzing || (!eegPrediction && !biometricPrediction)}
+              >
+                {isAnalyzing ? 'Sending...' : 'Send Readings to Combined App'}
+              </button>
+            </div>
+
             {error && (
               <div className="error-message">
                 <p>{error}</p>
@@ -376,4 +506,4 @@ const RealTimeTest = () => {
   );
 };
 
-export default RealTimeTest; 
+export default RealTimeTest;

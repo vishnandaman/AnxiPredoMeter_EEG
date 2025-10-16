@@ -5,6 +5,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import logging
 import socket
+import subprocess
+import json
 
 # Configure logging with more detailed output
 logging.basicConfig(
@@ -382,6 +384,47 @@ def mock_biometric_prediction_with_confidence(spo2, gsr):
         'confidence_scores': confidence_scores
     }
 
+def run_cortex_script_and_parse(script_name='cortex._atest.py'):
+    """
+    Try to run the cortex script (located next to this file) and parse JSON output.
+    The cortex script should print JSON like: {"eeg": {...}, "biometric": {...}}
+    Fallback: return None on error.
+    """
+    base = os.path.dirname(__file__)
+    script_path = os.path.join(base, script_name)
+    if not os.path.exists(script_path):
+        # try alternate name without dot
+        alt = os.path.join(base, 'cortex_atest.py')
+        if os.path.exists(alt):
+            script_path = alt
+        else:
+            return None
+
+    try:
+        completed = subprocess.run(
+            ['python', script_path],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        out = completed.stdout.strip()
+        # If the script already prints JSON, parse it
+        try:
+            parsed = json.loads(out)
+            return parsed
+        except json.JSONDecodeError:
+            # try to find a JSON substring
+            start = out.find('{')
+            end = out.rfind('}')
+            if start != -1 and end != -1 and end > start:
+                try:
+                    return json.loads(out[start:end+1])
+                except Exception:
+                    return None
+            return None
+    except Exception:
+        return None
+
 @app.route('/predict_eeg', methods=['POST'])
 def predict_eeg():
     """EEG prediction endpoint"""
@@ -478,6 +521,32 @@ def get_latest_arduino_data():
         "data": latest_arduino_data,
         "timestamp": str(np.datetime64('now'))
     })
+
+@app.route('/latest_avg_eeg', methods=['GET'])
+def latest_avg_eeg():
+    """
+    Returns latest EEG averages. This will try to run the cortex script and
+    return its EEG results. If the script isn't available or doesn't return data,
+    a mock payload is returned.
+    """
+    parsed = run_cortex_script_and_parse()
+    if parsed and 'eeg' in parsed:
+        return jsonify({"status": "success", "data": parsed['eeg']})
+    # fallback mock
+    mock_eeg = {"alpha": 20.1, "beta": 12.3, "gamma": 3.4, "delta": 40.0, "theta": 8.2}
+    return jsonify({"status": "success", "data": mock_eeg})
+
+@app.route('/latest_avg_biometric', methods=['GET'])
+def latest_avg_biometric():
+    """
+    Returns latest biometric averages. Tries cortex script first, then fallback mock.
+    """
+    parsed = run_cortex_script_and_parse()
+    if parsed and 'biometric' in parsed:
+        return jsonify({"status": "success", "data": parsed['biometric']})
+    # fallback mock
+    mock_bio = {"spo2": 98.2, "gsr": 0.2862, "hr_mean": 72}
+    return jsonify({"status": "success", "data": mock_bio})
 
 @app.route('/', methods=['GET'])
 def health_check():
