@@ -3,8 +3,14 @@
   border-radius: 16px;
   box-shadow: 0 4px 20px var(--shadow-dark);
   padding: 32px;
-  margin: 24px 0;
+  margin: 24px auto;
   border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .results-header {
@@ -39,10 +45,14 @@
   border: 2px solid;
   border-radius: 12px;
   padding: 24px;
-  margin-bottom: 24px;
+  margin: 0 auto 24px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 20px;
+  width: 100%;
+  max-width: 800px;
+  box-sizing: border-box;
 }
 
 .prediction-icon {
@@ -229,6 +239,15 @@
   font-size: 14px;
 }
 
+/* Confidence Report and Doctor Recommendations Spacing */
+.results-section > .confidence-report {
+  margin: 24px 0;
+}
+
+.results-section > .doctor-recommendations {
+  margin: 24px 0;
+}
+
 /* Disclaimer */
 .disclaimer {
   background: rgba(245, 158, 11, 0.1);
@@ -238,6 +257,7 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  margin-top: 24px;
 }
 
 .disclaimer-icon {

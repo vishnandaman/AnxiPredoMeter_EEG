@@ -1,5 +1,7 @@
 import React from 'react';
 import { FaCheckCircle, FaExclamationTriangle, FaInfoCircle, FaBrain, FaHeartbeat } from 'react-icons/fa';
+import ConfidenceReport from './ConfidenceReport';
+import DoctorRecommendations from './DoctorRecommendations';
 import './ResultsSection.css';
 
 const ResultsSection = ({ prediction, type, title, subtitle }) => {
@@ -40,6 +42,20 @@ const ResultsSection = ({ prediction, type, title, subtitle }) => {
   const predictionColor = getPredictionColor(prediction.result);
   const predictionIcon = getPredictionIcon(prediction.result);
 
+  // Ensure confidence_scores is an array
+  const confidenceScores = Array.isArray(prediction.confidence_scores) 
+    ? prediction.confidence_scores 
+    : prediction.confidence_scores && typeof prediction.confidence_scores === 'object'
+    ? Object.entries(prediction.confidence_scores).map(([disorder, confidence]) => ({
+        disorder,
+        confidence: typeof confidence === 'number' ? confidence : 0,
+        status: typeof confidence === 'number' 
+          ? (confidence > 50 ? '✅' : confidence > 20 ? '⚠️' : confidence > 5 ? 'ℹ️' : '🧠')
+          : 'ℹ️',
+        note: `Confidence level: ${typeof confidence === 'number' ? confidence.toFixed(1) : 'N/A'}%`
+      }))
+    : [];
+
   return (
     <div className="results-section">
       <div className="results-header">
@@ -61,6 +77,18 @@ const ResultsSection = ({ prediction, type, title, subtitle }) => {
           </p>
         </div>
       </div>
+
+      {/* Detailed Confidence Report */}
+      {confidenceScores && confidenceScores.length > 0 && (
+        <ConfidenceReport 
+          confidenceScores={confidenceScores}
+          type={type || 'eeg'}
+          title={type === 'eeg' ? '🧠 EEG Analysis Confidence Report' : '💓 Biometric Analysis Confidence Report'}
+        />
+      )}
+
+      {/* Doctor Recommendations */}
+      <DoctorRecommendations prediction={prediction} />
 
       {/* Disclaimer */}
       <div className="disclaimer">

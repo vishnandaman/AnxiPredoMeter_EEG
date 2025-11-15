@@ -1,7 +1,64 @@
-ml_model/env/
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.h5
-*.pkl
-node_modules
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ML Model files (large binary files - uncomment if you want to exclude)
+# *.pkl
+# *.h5
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Temporary/test files
+verify_averages.py
+*.tmp
+*.temp
+cleanup_commands.txt
+untrack_files.cmd
+
+# EEG Data files (CSV - keep local but don't track in git)
+EEG/eeg_live_data.csv
+EEG/cortex_samples/*.csv
+*.csv

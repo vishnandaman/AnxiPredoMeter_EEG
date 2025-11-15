@@ -1,241 +1,304 @@
+/* RealTimeTest Page - Fully Centered Design */
 .realtime-test {
   min-height: 100vh;
   background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 20px;
+  justify-content: flex-start;
+  padding: 100px 20px 40px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.test-container {
-  max-width: 800px;
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  position: relative;
+  box-sizing: border-box;
 }
 
-.test-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-  z-index: 1;
-}
-
-/* Step Indicator */
+/* Step Indicator - Centered */
 .step-indicator {
-  padding: 24px 32px;
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.step-dots {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  padding: 20px 32px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 900px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.step-dot {
-  width: 12px;
-  height: 12px;
+.step-circle {
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
-  position: relative;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.step-dot.active {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
-}
-
-.step-dot.current {
+.step-circle:hover {
   transform: scale(1.3);
-  box-shadow: 0 0 15px rgba(102, 126, 234, 0.8);
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 8px rgba(102, 126, 234, 0.4);
 }
 
+.step-circle.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: #667eea;
+  box-shadow: 0 0 12px rgba(102, 126, 234, 0.6);
+  transform: scale(1.4);
+}
+
+/* Step Content Container - Fully Centered */
+.step-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Animation Section - Centered */
+.step-animation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 40px;
+  min-height: 280px;
+}
+
+.step-animation.compact-animation {
+  margin-bottom: 20px;
+  min-height: 200px;
+}
+
+.step-animation > * {
+  margin: 0 auto;
+}
+
+/* Text Section - Centered */
 .step-text {
   text-align: center;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-  font-weight: 500;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 40px;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
-/* Step Content */
-.step-content {
-  padding: 40px 32px;
+.step-content:has(.form-section) .step-text {
+  margin-bottom: 20px;
 }
 
-.step-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.step-title {
+.step-text h2 {
   font-size: 2.5rem;
   font-weight: 700;
   background: linear-gradient(135deg, #667eea, #764ba2);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 16px;
-  animation: fadeInUp 0.6s ease;
+  margin: 0 0 16px 0;
+  text-align: center;
+  line-height: 1.2;
 }
 
-.step-subtitle {
+.step-content:has(.form-section) .step-text h2 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.step-text p {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.6;
-  max-width: 500px;
-  margin: 0 auto;
-  animation: fadeInUp 0.6s ease 0.1s both;
+  margin: 0;
+  text-align: center;
 }
 
-/* Animation Section */
-.animation-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 40px;
-  min-height: 300px;
+.step-content:has(.form-section) .step-text p {
+  font-size: 0.95rem;
 }
 
-.animation-container {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 20px;
-  animation: fadeIn 0.6s ease;
-}
-
-.animation-glow {
-  position: relative;
+/* Step Actions - Centered */
+.step-actions {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(147, 51, 234, 0.1));
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  box-shadow: 
-    0 0 20px rgba(102, 126, 234, 0.2),
-    0 0 40px rgba(147, 51, 234, 0.1),
-    inset 0 0 20px rgba(102, 126, 234, 0.05);
-  animation: pulse 2s ease-in-out infinite alternate;
+  width: 100%;
+  margin: 20px 0 40px;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
-/* Form Section */
+.step-content:has(.form-section) .step-actions {
+  margin: 10px 0 20px;
+}
+
+/* Form Section - Fully Centered */
 .form-section {
   width: 100%;
-  max-width: 600px;
-  animation: fadeInUp 0.6s ease;
-}
-
-/* Result Section */
-.result-section {
-  width: 100%;
-  max-width: 800px;
-  animation: fadeInUp 0.6s ease;
-}
-
-.error-message {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 20px;
-  color: #f87171;
-  text-align: center;
-}
-
-.analyzing-message {
+  max-width: 700px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.analyzing-message p {
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-/* Result Display */
-.result-display {
-  text-align: center;
+  justify-content: center;
+  padding: 0 20px;
+  box-sizing: border-box;
   animation: fadeInUp 0.6s ease;
 }
 
-.result-display h3 {
-  color: rgba(255, 255, 255, 0.9);
+.form-section > * {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Autofill Button Container - Centered */
+.form-section > div:first-child {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   margin-bottom: 20px;
-  font-size: 1.5rem;
 }
 
-.prediction-badge {
-  display: inline-block;
-  padding: 16px 32px;
-  border-radius: 50px;
-  font-weight: 700;
-  font-size: 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  animation: pulse 2s infinite;
+/* Error Message - Centered */
+.error-message {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 20px auto;
+  color: #f87171;
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
 }
 
-.prediction-badge.low-anxiety,
-.prediction-badge.low-risk {
-  background: linear-gradient(135deg, #4ade80, #22c55e);
-  color: white;
-  box-shadow: 0 8px 20px rgba(74, 222, 128, 0.3);
+.error-message p {
+  margin: 0;
 }
 
-.prediction-badge.moderate-anxiety,
-.prediction-badge.moderate-risk {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: white;
-  box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3);
+/* Prefill Preview - Centered */
+.prefill-preview {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
-.prediction-badge.high-anxiety,
-.prediction-badge.high-risk {
-  background: linear-gradient(135deg, #f87171, #ef4444);
-  color: white;
-  box-shadow: 0 8px 20px rgba(248, 113, 113, 0.3);
+.prefill-preview h4 {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 15px 0;
+  text-align: center;
 }
 
-/* Final Results */
-.final-results {
+.prefill-preview pre {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: left;
+  overflow-x: auto;
+  margin: 0 0 15px 0;
+}
+
+.prefill-preview > div {
+  display: flex;
+  justify-content: center;
+}
+
+/* Result Section - Fully Centered */
+.result-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  width: 100%;
-  max-width: 800px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  box-sizing: border-box;
   animation: fadeInUp 0.6s ease;
 }
 
-/* Step Actions */
-.step-actions {
+.result-section h3 {
   text-align: center;
-  margin-top: 40px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 30px 0;
+  width: 100%;
 }
 
+.prediction-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.prediction-cards .prediction-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.prediction-cards .prediction-card h4 {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 20px 0;
+}
+
+.prediction-cards .prediction-card p {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 10px 0;
+}
+
+.prediction-cards .prediction-card ul {
+  text-align: center;
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+}
+
+.prediction-cards .prediction-card ul li {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 8px 0;
+}
+
+.result-section > div:last-child {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  width: 100%;
+}
+
+/* Action Button - Centered */
 .action-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   padding: 16px 32px;
   background: linear-gradient(135deg, #667eea, #764ba2);
@@ -249,6 +312,7 @@
   box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
   position: relative;
   overflow: hidden;
+  margin: 0 auto;
 }
 
 .action-button::before {
@@ -285,6 +349,72 @@
   background: linear-gradient(135deg, #6b7280, #4b5563);
 }
 
+/* Autofill Main Button - Centered */
+.autofill-main-btn {
+  background: linear-gradient(135deg, #FFD700, #FFA500) !important;
+  color: #333 !important;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3) !important;
+  margin: 0 auto !important;
+}
+
+.autofill-main-btn:hover {
+  background: linear-gradient(135deg, #FFA500, #FFD700) !important;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4) !important;
+}
+
+.autofill-main-btn .btn-icon {
+  font-size: 16px;
+}
+
+.autofill-main-btn .btn-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* ResultsSection Component - Ensure Centered */
+.realtime-test .results-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.realtime-test .confidence-report {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  box-sizing: border-box;
+}
+
+.realtime-test .doctor-recommendations {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  box-sizing: border-box;
+}
+
+/* EEGInputForm and BiometricInputForm - Ensure Centered */
+.realtime-test .eeg-form,
+.realtime-test .biometric-form {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.realtime-test .eeg-section,
+.realtime-test .biometric-section {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
 /* Loading Spinner */
 .loading-spinner {
   width: 20px;
@@ -293,35 +423,6 @@
   border-top: 2px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-}
-
-/* Navigation Footer */
-.navigation-footer {
-  padding: 24px 32px;
-  background: rgba(0, 0, 0, 0.2);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-}
-
-.nav-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.nav-button:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  transform: translateY(-1px);
 }
 
 /* Animations */
@@ -366,27 +467,43 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .realtime-test {
-    padding: 10px;
+    padding: 90px 15px 30px;
   }
   
-  .test-container {
-    border-radius: 16px;
+  .step-indicator {
+    padding: 15px 20px;
+    gap: 10px;
+    max-width: 100%;
+  }
+  
+  .step-circle {
+    width: 12px;
+    height: 12px;
   }
   
   .step-content {
-    padding: 24px 20px;
+    padding: 0;
   }
   
-  .step-title {
+  .step-text h2 {
     font-size: 2rem;
   }
   
-  .step-subtitle {
+  .step-text p {
     font-size: 1rem;
   }
   
-  .final-results {
-    gap: 24px;
+  .step-animation {
+    min-height: 220px;
+    margin-bottom: 30px;
+  }
+  
+  .form-section {
+    padding: 0 15px;
+  }
+  
+  .result-section {
+    padding: 0 15px;
   }
   
   .action-button {
@@ -394,30 +511,46 @@
     font-size: 1rem;
   }
   
-  .step-dots {
-    gap: 8px;
-  }
-  
-  .step-dot {
-    width: 10px;
-    height: 10px;
+  .prediction-cards {
+    gap: 20px;
   }
 }
 
 @media (max-width: 480px) {
-  .step-title {
-    font-size: 1.8rem;
+  .realtime-test {
+    padding: 80px 10px 20px;
   }
   
-  .step-content {
-    padding: 20px 16px;
+  .step-text h2 {
+    font-size: 1.75rem;
+  }
+  
+  .step-text p {
+    font-size: 0.95rem;
   }
   
   .step-indicator {
-    padding: 16px 20px;
+    padding: 12px 15px;
+    gap: 8px;
   }
   
-  .navigation-footer {
-    padding: 16px 20px;
+  .step-circle {
+    width: 10px;
+    height: 10px;
   }
-} 
+  
+  .step-animation {
+    min-height: 200px;
+    margin-bottom: 25px;
+  }
+  
+  .form-section,
+  .result-section {
+    padding: 0 10px;
+  }
+  
+  .action-button {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+}
