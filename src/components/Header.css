@@ -100,6 +100,45 @@
   color: var(--accent-primary);
 }
 
+.doctor-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 15px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+}
+
+.doctor-icon {
+  font-size: 16px;
+  color: var(--accent-primary);
+}
+
+.doctor-name {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 5px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-content {

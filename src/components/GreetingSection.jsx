@@ -23,7 +23,7 @@ const GreetingSection = () => {
           {greeting.icon}
         </div>
         <h2 className="greeting-text">{greeting.text}</h2>
-        <p className="greeting-subtitle">Welcome to AnxiPredoMeter - Advanced Anxiety Disorder Prediction Platform</p>
+        <p className="greeting-subtitle">Welcome to AnxiePredict - Intelligent Anxiety Assessment Platform</p>
       </div>
     </div>
   );

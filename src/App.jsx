@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { FaBrain, FaHeartbeat, FaThermometerHalf, FaComments, FaUserMd, FaExclamationTriangle } from 'react-icons/fa';
 import Header from './components/Header';
 import GreetingSection from './components/GreetingSection';
+import AboutSection from './components/AboutSection';
 import EEGInputForm from './components/EEGInputForm';
 import ConfidenceReport from './components/ConfidenceReport';
-import DoctorRecommendations from './components/DoctorRecommendations';
+import VisitDoctorRecommendation from './components/VisitDoctorRecommendation';
 import Chatbot from './components/Chatbot';
 import Footer from './components/Footer';
-import AnimationTest from './components/AnimationTest';
 import RealTimeTest from './pages/RealTimeTest';
+import DoctorLogin from './pages/DoctorLogin';
+import DoctorDashboard from './pages/DoctorDashboard';
+import MedicalReport from './pages/MedicalReport';
 import './App.css';
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [eegPrediction, setEegPrediction] = useState(null);
   const [biometricPrediction, setBiometricPrediction] = useState(null);
-  const [showDoctors, setShowDoctors] = useState(false);
   const [isMainChatbotOpen, setIsMainChatbotOpen] = useState(false);
   const [error, setError] = useState(null);
 
@@ -53,7 +57,10 @@ function App() {
           confidence_scores: result.confidence_scores,
           data: eegData
         });
-        setShowDoctors(true);
+        toast.success('EEG analysis completed successfully!', {
+          position: "top-right",
+          autoClose: 3000,
+        });
       }
     } catch (error) {
       console.error("EEG Error:", error);
@@ -96,7 +103,10 @@ function App() {
           confidence_scores: result.confidence_scores,
           data: biometricData
         });
-        setShowDoctors(true);
+        toast.success('Biometric analysis completed successfully!', {
+          position: "top-right",
+          autoClose: 3000,
+        });
       }
     } catch (error) {
       console.error("Biometric Error:", error);
@@ -107,7 +117,25 @@ function App() {
   };
 
   return (
-    <Router>
+    <Router
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        style={{ fontSize: '14px' }}
+      />
       <div className="app">
         <Header />
         
@@ -119,12 +147,47 @@ function App() {
               <div className="platform-title">
                 <h1 className="title">
                   <FaBrain className="title-icon" />
-                  AnxiPredoMeter
+                  AnxiePredict
                 </h1>
-                <p className="subtitle">Advanced Anxiety Disorder Prediction Platform</p>
+                <p className="subtitle">Intelligent Anxiety Assessment Platform</p>
               </div>
               
-              <AnimationTest />
+              <AboutSection />
+              
+              <div className="platform-description">
+                <div className="description-card quick-assessment-card">
+                  <div className="quick-assessment-header">
+                    <FaThermometerHalf className="quick-assessment-icon" />
+                  <h3>Quick Self-Assessment</h3>
+                  </div>
+                  <p className="quick-assessment-description">
+                    If you have access to your EEG wave measurements or biometric readings (GSR & SpO2), 
+                    you can perform a quick self-assessment to get preliminary insights about your anxiety levels. 
+                    <strong> Please note: This is for informational purposes only and should not replace professional medical evaluation.</strong>
+                  </p>
+                  <div className="description-features">
+                    <div className="desc-feature">
+                      <FaBrain />
+                      <span>Enter EEG data (Beta, Gamma, Delta, Alpha, Theta)</span>
+                    </div>
+                    <div className="desc-feature">
+                      <FaHeartbeat />
+                      <span>Enter Biometric data (GSR and SpO2)</span>
+                    </div>
+                    <div className="desc-feature">
+                      <FaThermometerHalf />
+                      <span>Get instant predictions with confidence scores</span>
+                    </div>
+                  </div>
+                  <div className="quick-assessment-note">
+                    <FaExclamationTriangle className="note-icon" />
+                    <p>
+                      <strong>Important:</strong> For comprehensive real-time monitoring with professional-grade equipment, 
+                      please visit a healthcare facility where doctors can perform the complete Real-Time Test.
+                    </p>
+                  </div>
+                </div>
+              </div>
               
               <div className="dual-section-container">
                 {/* Left Section - EEG Analysis */}
@@ -188,12 +251,17 @@ function App() {
                 </div>
               )}
               
-              {showDoctors && (
-                <DoctorRecommendations />
+              {(eegPrediction || biometricPrediction) && (
+                <VisitDoctorRecommendation 
+                  prediction={eegPrediction || biometricPrediction} 
+                />
               )}
             </main>
           } />
           <Route path="/realtime" element={<RealTimeTest />} />
+          <Route path="/doctor-login" element={<DoctorLogin />} />
+          <Route path="/dashboard" element={<DoctorDashboard />} />
+          <Route path="/medical-report" element={<MedicalReport />} />
         </Routes>
         
         <Chatbot 

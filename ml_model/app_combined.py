@@ -1,14 +1,32 @@
 import os
 import pickle
 import numpy as np
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 import logging
 import socket
 import subprocess
-import json
+import json as json_module
 import csv
 from collections import defaultdict
+from functools import wraps
+from typing import Dict
+# Use Firebase database instead of SQLite
+from firebase_database import (
+    initialize_firebase, create_doctor, verify_doctor, get_doctor_by_id, get_all_doctors,
+    create_patient, update_patient, get_patient_by_id, get_all_patients,
+    save_test_report, get_patient_reports, get_report_by_id
+)
+
+# Initialize Firebase on startup (replaces init_database)
+def init_database():
+    """Initialize Firebase database"""
+    try:
+        initialize_firebase()
+        print("✅ Firebase database initialized")
+    except Exception as e:
+        print(f"⚠️ Firebase initialization warning: {e}")
+        print("   Make sure firebase_config.json or service account credentials are set up")
 
 # Configure logging with more detailed output
 logging.basicConfig(
@@ -18,7 +36,36 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+app.secret_key = 'anxiety_clinic_secret_key_2024_change_in_production'
+
+# Configure session cookie for CORS compatibility
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+
+# Configure CORS with credentials support and custom headers
+CORS(app, 
+     resources={r"/*": {
+         "origins": "*",
+         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         "allow_headers": ["Content-Type", "Authorization", "X-Doctor-Id", "X-Requested-With"],
+         "expose_headers": ["Content-Type"],
+         "supports_credentials": True
+     }}, 
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization", "X-Doctor-Id", "X-Requested-With"],
+     expose_headers=["Content-Type"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+
+# Initialize Firebase database on startup
+# Note: Firebase initialization will happen lazily when first needed
+# This allows the server to start even without Firebase credentials initially
+try:
+    init_database()
+except Exception as e:
+    print(f"⚠️ Database initialization warning: {e}")
+    print("   Server will start, but database operations require service account key")
+    print("   Prediction endpoints will work, but doctor/patient management requires Firebase")
 
 # Global variables for models
 random_forest_model = None
@@ -337,6 +384,112 @@ def mock_eeg_prediction_with_confidence(beta, gamma, delta, alpha, theta):
         'confidence_scores': confidence_scores
     }
 
+def combine_predictions(eeg_prediction: Dict, biometric_prediction: Dict, 
+                        eeg_weight: float = 0.6, biometric_weight: float = 0.4) -> Dict:
+    """
+    Combine EEG and biometric predictions with weighted scores.
+    Handles conflicts when predictions differ.
+    
+    Args:
+        eeg_prediction: EEG prediction result with confidence_scores
+        biometric_prediction: Biometric prediction result with confidence_scores
+        eeg_weight: Weight for EEG prediction (default 0.6)
+        biometric_weight: Weight for biometric prediction (default 0.4)
+    
+    Returns:
+        Combined prediction with conflict analysis
+    """
+    # Extract confidence scores
+    eeg_scores = {item['disorder']: item['confidence'] 
+                  for item in eeg_prediction.get('confidence_scores', [])}
+    bio_scores = {item['disorder']: item['confidence'] 
+                  for item in biometric_prediction.get('confidence_scores', [])}
+    
+    # Get all unique disorders
+    all_disorders = set(eeg_scores.keys()) | set(bio_scores.keys())
+    
+    # Calculate weighted combined scores
+    combined_scores = []
+    for disorder in all_disorders:
+        eeg_conf = eeg_scores.get(disorder, 0)
+        bio_conf = bio_scores.get(disorder, 0)
+        
+        # Weighted average
+        combined_conf = (eeg_conf * eeg_weight) + (bio_conf * biometric_weight)
+        
+        combined_scores.append({
+            'disorder': disorder,
+            'confidence': round(combined_conf, 1),
+            'eeg_confidence': round(eeg_conf, 1),
+            'biometric_confidence': round(bio_conf, 1),
+            'status': '✅' if combined_conf > 50 else '⚠️' if combined_conf > 20 else 'ℹ️' if combined_conf > 5 else '🧠'
+        })
+    
+    # Sort by combined confidence
+    combined_scores.sort(key=lambda x: x['confidence'], reverse=True)
+    
+    # Primary prediction
+    primary_prediction = combined_scores[0]['disorder']
+    
+    # Conflict analysis
+    eeg_primary = eeg_prediction.get('primary_prediction', 'Unknown')
+    bio_primary = biometric_prediction.get('primary_prediction', 'Unknown')
+    
+    has_conflict = eeg_primary != bio_primary
+    conflict_severity = 'none'
+    
+    if has_conflict:
+        eeg_top_conf = eeg_scores.get(eeg_primary, 0)
+        bio_top_conf = bio_scores.get(bio_primary, 0)
+        
+        # Calculate conflict severity
+        conf_diff = abs(eeg_top_conf - bio_top_conf)
+        if conf_diff < 10:
+            conflict_severity = 'high'  # Very close, unreliable
+        elif conf_diff < 25:
+            conflict_severity = 'medium'
+        else:
+            conflict_severity = 'low'  # One is clearly stronger
+    
+    conflict_analysis = {
+        'has_conflict': has_conflict,
+        'severity': conflict_severity,
+        'eeg_primary': eeg_primary,
+        'biometric_primary': bio_primary,
+        'eeg_weight': eeg_weight,
+        'biometric_weight': biometric_weight,
+        'recommendation': generate_conflict_recommendation(
+            has_conflict, conflict_severity, eeg_primary, bio_primary,
+            eeg_scores.get(eeg_primary, 0), bio_scores.get(bio_primary, 0)
+        )
+    }
+    
+    return {
+        'primary_prediction': primary_prediction,
+        'confidence_scores': combined_scores,
+        'eeg_prediction': eeg_primary,
+        'biometric_prediction': bio_primary,
+        'conflict_analysis': conflict_analysis,
+        'weights_used': {
+            'eeg': eeg_weight,
+            'biometric': biometric_weight
+        }
+    }
+
+def generate_conflict_recommendation(has_conflict: bool, severity: str, 
+                                     eeg_primary: str, bio_primary: str,
+                                     eeg_conf: float, bio_conf: float) -> str:
+    """Generate recommendation based on conflict analysis"""
+    if not has_conflict:
+        return "Both EEG and biometric analysis agree. Prediction is consistent."
+    
+    if severity == 'high':
+        return f"Significant conflict detected: EEG suggests '{eeg_primary}' ({eeg_conf:.1f}%) while biometric suggests '{bio_primary}' ({bio_conf:.1f}%). Confidence scores are very close. Consider re-testing or additional clinical evaluation."
+    elif severity == 'medium':
+        return f"Moderate conflict: EEG suggests '{eeg_primary}' while biometric suggests '{bio_primary}'. The combined prediction uses weighted analysis. Clinical correlation recommended."
+    else:
+        return f"Minor conflict: Different primary predictions (EEG: '{eeg_primary}', Biometric: '{bio_primary}'), but one has significantly higher confidence. Combined prediction favors the more confident result."
+
 def mock_biometric_prediction_with_confidence(spo2, gsr):
     """Mock biometric prediction with confidence scores when models fail to load"""
     # Generate mock confidence scores based on input values
@@ -489,15 +642,15 @@ def run_cortex_script_and_parse(script_name='cortex._atest.py'):
         out = completed.stdout.strip()
         # If the script already prints JSON, parse it
         try:
-            parsed = json.loads(out)
+            parsed = json_module.loads(out)
             return parsed
-        except json.JSONDecodeError:
+        except json_module.JSONDecodeError:
             # try to find a JSON substring
             start = out.find('{')
             end = out.rfind('}')
             if start != -1 and end != -1 and end > start:
                 try:
-                    return json.loads(out[start:end+1])
+                    return json_module.loads(out[start:end+1])
                 except Exception:
                     return None
             return None
@@ -651,6 +804,439 @@ def latest_avg_biometric():
     mock_bio = {"spo2": 98.2, "gsr": 0.2862, "hr_mean": 72}
     return jsonify({"status": "success", "data": mock_bio})
 
+# Authentication decorator
+def require_auth(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Try to get doctor_id from session first
+        doctor_id = session.get('doctor_id')
+        
+        # If not in session, try to get from request headers
+        if not doctor_id:
+            doctor_id_header = request.headers.get('X-Doctor-Id')
+            if doctor_id_header:
+                # Verify doctor exists
+                doctor = get_doctor_by_id(str(doctor_id_header))
+                if doctor:
+                    # Set in session for future requests
+                    session['doctor_id'] = str(doctor_id_header)
+                    doctor_id = str(doctor_id_header)
+        
+        # If still not found, try to get from query parameters (for GET requests)
+        if not doctor_id:
+            doctor_id_query = request.args.get('doctor_id')
+            if doctor_id_query:
+                # Verify doctor exists
+                doctor = get_doctor_by_id(str(doctor_id_query))
+                if doctor:
+                    # Set in session for future requests
+                    session['doctor_id'] = str(doctor_id_query)
+                    doctor_id = str(doctor_id_query)
+        
+        # If still not found, try to get from request body (for POST requests)
+        if not doctor_id and request.is_json:
+            try:
+                data = request.get_json(silent=True) or {}
+                doctor_id_from_body = data.get('doctor_id')
+                if doctor_id_from_body:
+                    # Verify doctor exists
+                    doctor = get_doctor_by_id(str(doctor_id_from_body))
+                    if doctor:
+                        # Set in session for future requests
+                        session['doctor_id'] = str(doctor_id_from_body)
+                        doctor_id = str(doctor_id_from_body)
+            except Exception:
+                pass
+        
+        if not doctor_id:
+            logger.warning(f"Authentication failed - no doctor_id found. Session: {dict(session)}")
+            return jsonify({"error": "Authentication required. Please login again."}), 401
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Authentication endpoints
+@app.route('/api/doctor/register', methods=['POST'])
+def doctor_register():
+    """Register a new doctor"""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        name = data.get('name')
+        license_number = data.get('license_number')
+        
+        if not email or not password or not name:
+            return jsonify({"error": "Missing required fields: email, password, name"}), 400
+        
+        success, message, doctor = create_doctor(email, password, name, license_number)
+        
+        if success:
+            # Auto-login after registration
+            session['doctor_id'] = doctor['id']
+            session['doctor_email'] = doctor['email']
+            session['doctor_name'] = doctor['name']
+            
+            return jsonify({
+                "success": True,
+                "message": message,
+                "doctor": doctor
+            }), 201
+        else:
+            return jsonify({"error": message}), 400
+            
+    except Exception as e:
+        logger.error(f"Registration error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/doctor/login', methods=['POST'])
+def doctor_login():
+    """Login doctor"""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        
+        if not email or not password:
+            return jsonify({"error": "Missing email or password"}), 400
+        
+        success, message, doctor = verify_doctor(email, password)
+        
+        if success:
+            session['doctor_id'] = doctor['id']
+            session['doctor_email'] = doctor['email']
+            session['doctor_name'] = doctor['name']
+            
+            return jsonify({
+                "success": True,
+                "message": message,
+                "doctor": doctor
+            })
+        else:
+            return jsonify({"error": message}), 401
+            
+    except Exception as e:
+        logger.error(f"Login error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/doctor/logout', methods=['POST'])
+def doctor_logout():
+    """Logout doctor"""
+    session.clear()
+    return jsonify({"success": True, "message": "Logged out successfully"})
+
+@app.route('/api/doctor/me', methods=['GET'])
+@require_auth
+def doctor_me():
+    """Get current doctor info"""
+    doctor_id = session.get('doctor_id')
+    doctor = get_doctor_by_id(doctor_id)
+    
+    if doctor:
+        return jsonify({"success": True, "doctor": doctor})
+    else:
+        return jsonify({"error": "Doctor not found"}), 404
+
+@app.route('/api/doctors', methods=['GET'])
+def list_all_doctors():
+    """Get all registered doctors (public endpoint)"""
+    try:
+        doctors = get_all_doctors()
+        return jsonify({
+            "success": True,
+            "doctors": doctors,
+            "count": len(doctors)
+        })
+    except Exception as e:
+        logger.error(f"List doctors error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# Patient management endpoints
+@app.route('/api/patients', methods=['POST'])
+@require_auth
+def create_patient_endpoint():
+    """Create a new patient"""
+    try:
+        data = request.get_json()
+        patient_id = data.get('patient_id')
+        name = data.get('name')
+        age = data.get('age')
+        gender = data.get('gender')
+        
+        # Get doctor_id from session (set by require_auth decorator)
+        doctor_id = session.get('doctor_id')
+        
+        # Fallback: try to get from request body
+        if not doctor_id:
+            doctor_id = data.get('doctor_id')
+            if doctor_id:
+                doctor = get_doctor_by_id(str(doctor_id))
+                if doctor:
+                    session['doctor_id'] = str(doctor_id)
+                    doctor_id = str(doctor_id)
+        
+        if not doctor_id:
+            return jsonify({"error": "Authentication required. Please login again."}), 401
+        
+        if not patient_id:
+            return jsonify({"error": "patient_id is required"}), 400
+        
+        success, message, patient = create_patient(patient_id, str(doctor_id), name, age, gender)
+        
+        if success:
+            return jsonify({
+                "success": True,
+                "message": message,
+                "patient": patient
+            }), 201
+        else:
+            return jsonify({"error": message}), 400
+            
+    except Exception as e:
+        logger.error(f"Create patient error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/patients', methods=['GET'])
+@require_auth
+def list_patients():
+    """Get all patients for the logged-in doctor"""
+    try:
+        # Get doctor_id from session (set by require_auth decorator)
+        doctor_id = session.get('doctor_id')
+        
+        logger.info(f"🔍 [BACKEND DEBUG] list_patients called")
+        logger.info(f"🔍 [BACKEND DEBUG] Session doctor_id: {doctor_id}")
+        logger.info(f"🔍 [BACKEND DEBUG] Query params: {request.args}")
+        
+        # Fallback: try to get from query parameters
+        if not doctor_id:
+            doctor_id = request.args.get('doctor_id')
+            logger.info(f"🔍 [BACKEND DEBUG] Got doctor_id from query: {doctor_id}")
+            if doctor_id:
+                doctor = get_doctor_by_id(str(doctor_id))
+                if doctor:
+                    session['doctor_id'] = str(doctor_id)
+                    doctor_id = str(doctor_id)
+                    logger.info(f"🔍 [BACKEND DEBUG] Doctor found, session updated")
+                else:
+                    logger.warning(f"⚠️ [BACKEND DEBUG] Doctor not found for ID: {doctor_id}")
+        
+        if not doctor_id:
+            logger.error(f"❌ [BACKEND DEBUG] No doctor_id found")
+            return jsonify({"error": "Authentication required. Please login again."}), 401
+        
+        # Ensure doctor_id is a string and get patients for THIS doctor only
+        doctor_id = str(doctor_id)
+        logger.info(f"🔍 [BACKEND DEBUG] Fetching patients for doctor_id: {doctor_id} (type: {type(doctor_id)})")
+        
+        patients = get_all_patients(doctor_id)
+        
+        logger.info(f"✅ [BACKEND DEBUG] Retrieved {len(patients)} patients from database")
+        logger.info(f"🔍 [BACKEND DEBUG] Patients data: {patients}")
+        
+        # Log each patient's structure
+        for idx, patient in enumerate(patients):
+            logger.info(f"🔍 [BACKEND DEBUG] Patient {idx + 1}: ID={patient.get('id')}, patient_id={patient.get('patient_id')}, doctor_id={patient.get('doctor_id')}, name={patient.get('name')}")
+        
+        logger.info(f"Doctor {doctor_id} requested patients list - returning {len(patients)} patients")
+        
+        return jsonify({
+            "success": True,
+            "patients": patients,
+            "doctor_id": doctor_id,  # Return doctor_id for verification
+            "debug": {
+                "doctor_id": doctor_id,
+                "patient_count": len(patients)
+            }
+        })
+    except Exception as e:
+        logger.error(f"List patients error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/patients/<patient_id>', methods=['GET', 'DELETE'])
+@require_auth
+def patient_endpoint(patient_id):
+    """Get or delete patient by ID"""
+    try:
+        # Get doctor_id from session (set by require_auth decorator)
+        doctor_id = session.get('doctor_id')
+        
+        # Fallback: try to get from query parameters or request body
+        if not doctor_id:
+            doctor_id = request.args.get('doctor_id') or request.get_json().get('doctor_id') if request.is_json else None
+            if doctor_id:
+                doctor = get_doctor_by_id(str(doctor_id))
+                if doctor:
+                    session['doctor_id'] = str(doctor_id)
+                    doctor_id = str(doctor_id)
+        
+        if not doctor_id:
+            return jsonify({"error": "Authentication required. Please login again."}), 401
+        
+        if request.method == 'DELETE':
+            # Delete patient
+            from firebase_database import delete_patient
+            success, message = delete_patient(patient_id, str(doctor_id))
+            
+            if success:
+                return jsonify({
+                    "success": True,
+                    "message": message
+                })
+            else:
+                return jsonify({"error": message}), 404
+        else:
+            # GET patient
+            patient = get_patient_by_id(patient_id, str(doctor_id))
+            
+            if patient:
+                return jsonify({
+                    "success": True,
+                    "patient": patient
+                })
+            else:
+                return jsonify({"error": "Patient not found"}), 404
+    except Exception as e:
+        logger.error(f"Patient endpoint error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/patients/<patient_id>/reports', methods=['GET'])
+@require_auth
+def get_patient_reports_endpoint(patient_id):
+    """Get all reports for a patient"""
+    try:
+        # Get doctor_id from session (set by require_auth decorator)
+        doctor_id = session.get('doctor_id')
+        
+        # Fallback: try to get from query parameters
+        if not doctor_id:
+            doctor_id = request.args.get('doctor_id')
+            if doctor_id:
+                doctor = get_doctor_by_id(str(doctor_id))
+                if doctor:
+                    session['doctor_id'] = str(doctor_id)
+                    doctor_id = str(doctor_id)
+        
+        if not doctor_id:
+            return jsonify({"error": "Authentication required. Please login again."}), 401
+        
+        reports = get_patient_reports(patient_id, str(doctor_id))
+        
+        return jsonify({
+            "success": True,
+            "patient_id": patient_id,
+            "reports": reports
+        })
+    except Exception as e:
+        logger.error(f"Get patient reports error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/reports/<report_id>', methods=['GET'])
+@require_auth
+def get_report_endpoint(report_id):
+    """Get a specific report by ID"""
+    try:
+        doctor_id = session.get('doctor_id')
+        report = get_report_by_id(int(report_id), doctor_id)
+        
+        if report:
+            return jsonify({
+                "success": True,
+                "report": report
+            })
+        else:
+            return jsonify({"error": "Report not found"}), 404
+    except Exception as e:
+        logger.error(f"Get report error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# Combined prediction endpoint for doctor-managed tests
+@app.route('/api/predict_combined_full', methods=['POST'])
+@require_auth
+def predict_combined_full():
+    """Full combined prediction (EEG + Biometric) with patient ID and report saving"""
+    try:
+        data = request.get_json()
+        # Get doctor_id from session (set by require_auth decorator)
+        doctor_id = session.get('doctor_id')
+        
+        # Fallback: try to get from request body or header
+        if not doctor_id:
+            doctor_id = data.get('doctor_id') or request.headers.get('X-Doctor-Id')
+            if doctor_id:
+                # Verify doctor exists and set in session
+                doctor = get_doctor_by_id(str(doctor_id))
+                if doctor:
+                    session['doctor_id'] = str(doctor_id)
+                    doctor_id = str(doctor_id)
+        
+        if not doctor_id:
+            logger.error("No doctor_id found in session, body, or headers")
+            return jsonify({"error": "Authentication required. Please login again."}), 401
+        
+        # Extract data
+        patient_id = data.get('patient_id')
+        patient_name = data.get('patient_name') or data.get('name')  # Patient name from frontend (support both keys)
+        patient_age = data.get('patient_age') or data.get('age')  # Patient age from frontend (support both keys)
+        eeg_data = data.get('eeg_data')
+        biometric_data = data.get('biometric_data')
+        eeg_weight = data.get('eeg_weight', 0.7)  # Updated default: EEG has higher weightage
+        biometric_weight = data.get('biometric_weight', 0.3)  # Updated default: Biometric has lower weightage
+        save_report = data.get('save_report', True)
+        
+        # Validate required fields
+        if not patient_id:
+            return jsonify({"error": "patient_id is required"}), 400
+        
+        if not eeg_data or not biometric_data:
+            return jsonify({"error": "Both eeg_data and biometric_data are required"}), 400
+        
+        # Make individual predictions
+        eeg_result = predict_eeg_with_models(eeg_data)
+        biometric_result = predict_biometric_with_models(biometric_data)
+        
+        # Combine predictions
+        combined_result = combine_predictions(
+            eeg_result, 
+            biometric_result,
+            eeg_weight,
+            biometric_weight
+        )
+        
+        # Ensure patient exists (create if new, update name/age if provided)
+        # create_patient will automatically update existing patients if name/age provided
+        # Always call create_patient - it handles both create and update scenarios
+        create_patient(patient_id, doctor_id, name=patient_name, age=patient_age)
+        
+        # Save report if requested
+        if save_report:
+            save_test_report(
+                patient_id=patient_id,
+                doctor_id=doctor_id,
+                eeg_data=eeg_data,
+                biometric_data=biometric_data,
+                eeg_prediction=eeg_result,
+                biometric_prediction=biometric_result,
+                combined_prediction=combined_result
+            )
+        
+        logger.info(f"Combined prediction for patient {patient_id}: {combined_result['primary_prediction']}")
+        
+        return jsonify({
+            "success": True,
+            "patient_id": patient_id,
+            "eeg_prediction": eeg_result,
+            "biometric_prediction": biometric_result,
+            "combined_prediction": combined_result,
+            "report_saved": save_report
+        })
+        
+    except Exception as e:
+        logger.error(f"Combined prediction error: {e}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/', methods=['GET'])
 def health_check():
     """Health check endpoint"""
@@ -663,7 +1249,11 @@ def health_check():
             "test": "/test",
             "arduino_data": "/latest_arduino_data",
             "eeg": "/predict_eeg",
-            "biometric": "/predict_combined"
+            "biometric": "/predict_combined",
+            "doctor_register": "/api/doctor/register",
+            "doctor_login": "/api/doctor/login",
+            "doctor_logout": "/api/doctor/logout",
+            "combined_full": "/api/predict_combined_full"
         },
         "models_loaded": {
             "random_forest": random_forest_model is not None,

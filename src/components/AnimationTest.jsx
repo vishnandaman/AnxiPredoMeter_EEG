@@ -20,8 +20,6 @@ const AnimationTest = () => {
       
                    <div className="animation-status">
                <p>✅ Animation loaded successfully!</p>
-               <p>📊 File: Brain Simulation.json</p>
-               <p>🎬 Status: Playing (Loop enabled)</p>
              </div>
     </div>
   );

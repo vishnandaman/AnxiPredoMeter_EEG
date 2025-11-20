@@ -1,0 +1,324 @@
+.visit-doctor-recommendation {
+  margin-top: 40px;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.recommendation-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 30px;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 8px 32px var(--shadow-dark);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px var(--shadow-dark);
+}
+
+.recommendation-card.high {
+  border-color: var(--accent-danger);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+}
+
+.recommendation-card.medium {
+  border-color: var(--accent-warning);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+}
+
+.recommendation-card.low {
+  border-color: var(--accent-success);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+}
+
+.recommendation-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--border-light);
+}
+
+.recommendation-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.recommendation-card.high .recommendation-icon-wrapper {
+  background: linear-gradient(135deg, var(--accent-danger), #dc3545);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.recommendation-card.medium .recommendation-icon-wrapper {
+  background: linear-gradient(135deg, var(--accent-warning), #f59e0b);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.recommendation-card.low .recommendation-icon-wrapper {
+  background: linear-gradient(135deg, var(--accent-success), #10b981);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.recommendation-icon {
+  font-size: 28px;
+  color: var(--text-primary);
+}
+
+.recommendation-title-section {
+  flex: 1;
+}
+
+.recommendation-title-section h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.recommendation-card.high .recommendation-title-section h3 {
+  background: linear-gradient(135deg, var(--accent-danger), #dc3545);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.recommendation-card.medium .recommendation-title-section h3 {
+  background: linear-gradient(135deg, var(--accent-warning), #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.recommendation-card.low .recommendation-title-section h3 {
+  background: linear-gradient(135deg, var(--accent-success), #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.urgency-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.urgency-badge.high {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--accent-danger);
+  border: 1px solid var(--accent-danger);
+}
+
+.urgency-badge.medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-warning);
+  border: 1px solid var(--accent-warning);
+}
+
+.urgency-badge.low {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-success);
+  border: 1px solid var(--accent-success);
+}
+
+.recommendation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.recommendation-message {
+  display: flex;
+  gap: 15px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border-left: 4px solid var(--accent-primary);
+}
+
+.recommendation-card.high .recommendation-message {
+  border-left-color: var(--accent-danger);
+}
+
+.recommendation-card.medium .recommendation-message {
+  border-left-color: var(--accent-warning);
+}
+
+.recommendation-card.low .recommendation-message {
+  border-left-color: var(--accent-success);
+}
+
+.info-icon {
+  font-size: 24px;
+  color: var(--accent-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.recommendation-card.high .info-icon {
+  color: var(--accent-danger);
+}
+
+.recommendation-card.medium .info-icon {
+  color: var(--accent-warning);
+}
+
+.recommendation-card.low .info-icon {
+  color: var(--accent-success);
+}
+
+.recommendation-message p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.recommendation-action {
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+}
+
+.action-text {
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.action-text strong {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.visit-doctor-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: var(--text-primary);
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+}
+
+.visit-doctor-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  filter: brightness(1.1);
+}
+
+.visit-doctor-button svg {
+  font-size: 18px;
+}
+
+.visit-doctor-button svg.rotated {
+  transform: rotate(180deg);
+}
+
+.doctors-list-container {
+  margin-top: 25px;
+  padding-top: 25px;
+  border-top: 2px solid var(--border-light);
+  overflow: hidden;
+}
+
+.disclaimer-box {
+  display: flex;
+  gap: 15px;
+  padding: 20px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 2px solid var(--accent-warning);
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+.disclaimer-icon {
+  font-size: 24px;
+  color: var(--accent-warning);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.disclaimer-content {
+  flex: 1;
+}
+
+.disclaimer-content strong {
+  display: block;
+  color: var(--accent-warning);
+  font-size: 15px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.disclaimer-content p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .visit-doctor-recommendation {
+    padding: 0 15px;
+  }
+
+  .recommendation-card {
+    padding: 25px 20px;
+  }
+
+  .recommendation-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .recommendation-title-section h3 {
+    font-size: 20px;
+  }
+
+  .recommendation-message {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .visit-doctor-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

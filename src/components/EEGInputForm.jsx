@@ -167,7 +167,7 @@ const EEGInputForm = ({ onEEGSubmit, onBiometricSubmit, type = 'both', initialVa
 
         {lastData && (
           <div className="last-data-display">
-            <h4>📊 Last EEG Reading:</h4>
+            <h4>Last EEG Reading:</h4>
             <div className="data-values">
               <span>Delta: {lastData.delta || 'N/A'}</span>
               <span>Theta: {lastData.theta || 'N/A'}</span>

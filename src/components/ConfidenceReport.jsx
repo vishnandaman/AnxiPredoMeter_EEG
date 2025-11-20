@@ -35,7 +35,7 @@ const ConfidenceReport = ({ confidenceScores, type, title }) => {
   return (
     <div className="confidence-report">
       <div className="report-header">
-        <h2>🧠 Mental Health Prediction Confidence Report</h2>
+        <h2>Report Analysis:</h2>
         <p>Based on your {type === 'eeg' ? 'EEG' : 'biometric'} data, here's our analysis:</p>
       </div>
 
@@ -51,7 +51,7 @@ const ConfidenceReport = ({ confidenceScores, type, title }) => {
           {confidenceScores.map((score, index) => (
             <div key={index} className="table-row">
               <div className="cell disorder">
-                <span className="disorder-name">{formatDisorderName(score.disorder)}</span>
+                <span className="disorder-name">{formatDisorderName(score.disorder) || '—'}</span>
               </div>
               
               <div className="cell confidence">

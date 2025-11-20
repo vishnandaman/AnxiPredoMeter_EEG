@@ -1,0 +1,651 @@
+/* Medical Report Styles - Professional Medical Report Design */
+
+.medical-report-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 100px 20px 40px; /* Top padding to account for navbar */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* PDF Download Section - At the end of report */
+.report-download-section {
+  margin-top: 50px;
+  margin-bottom: 30px;
+  text-align: center;
+  padding: 30px 0;
+  width: 100%;
+}
+
+.pdf-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.pdf-download-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.pdf-download-btn:hover::before {
+  left: 100%;
+}
+
+.pdf-download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(220, 53, 69, 0.4);
+}
+
+.pdf-download-btn:active {
+  transform: translateY(0);
+}
+
+.pdf-download-btn:focus {
+  outline: 3px solid rgba(220, 53, 69, 0.5);
+  outline-offset: 2px;
+}
+
+/* Medical Report Content */
+.medical-report {
+  max-width: 210mm; /* A4 width */
+  margin: 0 auto;
+  background: white;
+  padding: 40px 50px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Times New Roman', Times, serif;
+  color: #000000;
+  line-height: 1.6;
+}
+
+.medical-report * {
+  color: #000000;
+}
+
+.medical-report p,
+.medical-report div,
+.medical-report span,
+.medical-report td,
+.medical-report th,
+.medical-report h3,
+.medical-report h4 {
+  color: #000000;
+}
+
+/* Header */
+.report-header {
+  text-align: center;
+  margin-bottom: 40px;
+  border-bottom: 4px solid #000;
+  padding-bottom: 25px;
+  position: relative;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 12px;
+}
+
+.logo-icon {
+  font-size: 42px;
+  color: #0066cc;
+  filter: drop-shadow(0 2px 4px rgba(0, 102, 204, 0.3));
+}
+
+.report-header h1 {
+  font-size: 36px;
+  font-weight: bold;
+  color: #0066cc;
+  margin: 0;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.header-subtitle {
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+
+.header-line {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #000, transparent);
+  margin-top: 20px;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Report Title Section */
+.report-title-section {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.report-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.report-id {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Report Sections */
+.report-section {
+  margin-bottom: 40px;
+  page-break-inside: avoid;
+  background: #ffffff;
+  padding: 25px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  color: #000000;
+}
+
+.report-section * {
+  color: #000000;
+}
+
+.report-section p,
+.report-section div,
+.report-section span,
+.report-section h3,
+.report-section h4 {
+  color: #000000;
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #000;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #0066cc;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: 1.5px;
+  font-family: 'Arial', sans-serif;
+}
+
+.section-icon {
+  font-size: 20px;
+  color: #0066cc;
+}
+
+/* Patient Information Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #333333;
+}
+
+.info-value {
+  color: #000000;
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Diagnosis Section */
+.diagnosis-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  padding: 35px;
+  border: 3px solid #000;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 40px;
+}
+
+.diagnosis-box {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.diagnosis-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: 'Arial', sans-serif;
+}
+
+.diagnosis-value {
+  font-size: 32px;
+  font-weight: 900;
+  color: #0066cc;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  text-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+  line-height: 1.2;
+}
+
+.diagnosis-confidence {
+  font-size: 15px;
+  color: #28a745;
+  font-weight: 700;
+  display: inline-block;
+  padding: 8px 20px;
+  background: rgba(40, 167, 69, 0.1);
+  border: 2px solid #28a745;
+  border-radius: 25px;
+  margin-top: 10px;
+}
+
+/* Analysis Subsections */
+.analysis-subsection {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.subsection-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.subsection-value {
+  font-size: 16px;
+  color: #000000;
+  font-weight: 600;
+  margin-bottom: 15px;
+  background: #ffffff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.subsection-note {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+/* Readings Grid */
+.readings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.reading-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #f8f9fa;
+  border-left: 3px solid #0066cc;
+  border-radius: 3px;
+}
+
+.reading-label {
+  font-weight: 600;
+  color: #333333;
+  font-size: 13px;
+}
+
+.reading-value {
+  color: #000000;
+  font-weight: 600;
+  font-size: 14px;
+  background: #ffffff;
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+
+/* Confidence Table */
+.confidence-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 13px;
+  background: #ffffff;
+}
+
+.confidence-table thead {
+  background: #0066cc;
+  color: #ffffff;
+}
+
+.confidence-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 12px;
+  border: 1px solid #004499;
+  color: #ffffff;
+}
+
+.confidence-table td {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  color: #000000;
+  background: #ffffff;
+}
+
+.confidence-table tbody tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.confidence-table tbody tr:nth-child(even) td {
+  background: #f8f9fa;
+  color: #000000;
+}
+
+.confidence-table tbody tr:nth-child(odd) td {
+  background: #ffffff;
+  color: #000000;
+}
+
+.confidence-table tbody tr:hover {
+  background: #e9ecef;
+}
+
+.confidence-table tbody tr:hover td {
+  background: #e9ecef;
+  color: #000000;
+}
+
+/* Conflict Section */
+.conflict-section {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 20px;
+  border-radius: 4px;
+}
+
+.conflict-box {
+  margin-top: 15px;
+}
+
+.conflict-box p {
+  margin-bottom: 10px;
+  color: #856404;
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Recommendations Section */
+.recommendations-section {
+  background: #f8f9fa;
+  padding: 25px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.recommendation-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: white;
+  border-left: 4px solid #0066cc;
+  border-radius: 3px;
+}
+
+.doctor-box {
+  border-left-color: #ffc107;
+}
+
+.patient-box {
+  border-left-color: #28a745;
+}
+
+.recommendation-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+}
+
+.recommendation-icon {
+  color: #0066cc;
+}
+
+.recommendation-text {
+  font-size: 13px;
+  color: #000000;
+  line-height: 1.8;
+  margin: 0;
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* Footer */
+.report-footer {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 4px solid #000;
+  page-break-inside: avoid;
+}
+
+.signature-section {
+  margin-bottom: 40px;
+  text-align: right;
+  padding-right: 20px;
+}
+
+.signature-line {
+  width: 300px;
+  height: 2px;
+  background: #000;
+  margin: 50px 0 8px auto;
+  border-top: 1px solid #000;
+}
+
+.signature-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.signature-icon {
+  color: #0066cc;
+  font-size: 16px;
+}
+
+.signature-details {
+  font-size: 12px;
+  color: #555;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.footer-disclaimer {
+  margin-top: 30px;
+  padding: 15px;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.footer-disclaimer strong {
+  color: #000;
+}
+
+.footer-note {
+  margin-top: 10px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Print Styles */
+@media print {
+  .no-print,
+  .report-download-section {
+    display: none !important;
+  }
+
+  .medical-report-container {
+    background: white;
+    padding: 0;
+  }
+
+  .medical-report {
+    box-shadow: none;
+    padding: 15mm 20mm;
+    max-width: 100%;
+    font-size: 11pt;
+  }
+
+  .report-actions-bar {
+    display: none !important;
+  }
+
+  .report-section {
+    page-break-inside: avoid;
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #ccc;
+  }
+
+  .diagnosis-section,
+  .recommendations-section {
+    page-break-inside: avoid;
+  }
+
+  .report-header {
+    border-bottom: 3px solid #000;
+    margin-bottom: 30px;
+  }
+
+  .report-header h1 {
+    font-size: 28pt;
+  }
+
+  .diagnosis-value {
+    font-size: 24pt;
+  }
+
+  .section-title {
+    font-size: 13pt;
+    border-bottom: 2px solid #0066cc;
+  }
+
+  .signature-line {
+    width: 250px;
+    margin-top: 40px;
+  }
+
+  @page {
+    margin: 15mm 20mm;
+    size: A4;
+  }
+
+  /* Ensure proper page breaks */
+  .report-footer {
+    page-break-inside: avoid;
+    margin-top: 40px;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .medical-report-container {
+    padding: 100px 15px 30px;
+  }
+
+  .medical-report {
+    padding: 20px;
+  }
+
+  .info-grid,
+  .readings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-title {
+    font-size: 18px;
+  }
+
+  .diagnosis-value {
+    font-size: 22px;
+  }
+
+  .pdf-download-btn {
+    padding: 14px 28px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .medical-report-container {
+    padding: 100px 10px 20px;
+  }
+
+  .pdf-download-btn {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
