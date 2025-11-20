@@ -8,6 +8,7 @@ import socket
 import subprocess
 import json as json_module
 import csv
+import traceback
 from collections import defaultdict
 from functools import wraps
 from typing import Dict
@@ -950,6 +951,66 @@ def list_all_doctors():
     except Exception as e:
         logger.error(f"List doctors error: {e}")
         return jsonify({"error": str(e)}), 500
+
+# ==================== REAL-TIME EEG COLLECTION (NEW) ====================
+# This endpoint provides automatic EEG collection without manual intervention
+# To rollback: Delete ml_model/eeg_realtime/ folder and this endpoint will be skipped
+@app.route('/api/eeg/collect_realtime', methods=['POST'])
+def collect_realtime_eeg():
+    """
+    Automatically collect EEG data from connected device.
+    No manual intervention required - connects, collects, filters, and returns averages.
+    """
+    try:
+        # Try to import the new real-time collector
+        try:
+            from eeg_realtime.realtime_eeg_collector import collect_eeg_data, COLLECTION_DURATION
+        except ImportError:
+            # Module not found - fallback to old method
+            logger.info("[EEG Realtime] Module not found, falling back to old method")
+            return jsonify({
+                "success": False,
+                "error": "Real-time EEG collection module not available",
+                "fallback_available": True,
+                "message": "Please use the old method (run cortex_test.py separately)"
+            }), 503
+        
+        # Get duration from request (optional, defaults to 30 seconds)
+        data = request.get_json() or {}
+        duration = data.get('duration', COLLECTION_DURATION)
+        
+        if not isinstance(duration, int) or duration < 5 or duration > 120:
+            duration = COLLECTION_DURATION
+        
+        logger.info(f"[EEG Realtime] Starting collection for {duration} seconds...")
+        
+        # Collect EEG data automatically
+        success, eeg_data, message = collect_eeg_data(duration=duration)
+        
+        if success and eeg_data:
+            logger.info(f"[EEG Realtime] Collection successful: {eeg_data}")
+            return jsonify({
+                "success": True,
+                "data": eeg_data,
+                "message": message,
+                "source": "realtime_collection"
+            })
+        else:
+            logger.warning(f"[EEG Realtime] Collection failed: {message}")
+            return jsonify({
+                "success": False,
+                "error": message,
+                "fallback_available": True
+            }), 400
+            
+    except Exception as e:
+        logger.error(f"[EEG Realtime] Error in endpoint: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({
+            "success": False,
+            "error": f"Collection error: {str(e)}",
+            "fallback_available": True
+        }), 500
 
 # Patient management endpoints
 @app.route('/api/patients', methods=['POST'])

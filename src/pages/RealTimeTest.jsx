@@ -506,10 +506,48 @@ const RealTimeTest = () => {
   };
 
   // fetch latest avg EEG and set bands + raw separately
+  // NEW: Tries real-time collection first, then falls back to old CSV method
   const fetchLatestEegAvg = async () => {
     setIsAutoFilling(true);
     setAutoFillError(null);
+    
+    // Try NEW real-time collection endpoint first
     try {
+      console.log('[EEG Autofill] Attempting real-time EEG collection...');
+      const realtimeRes = await fetch(`${serverBase}/api/eeg/collect_realtime`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ duration: 30 }) // 30 seconds collection
+      });
+      
+      if (realtimeRes.ok) {
+        const realtimePayload = await realtimeRes.json();
+        if (realtimePayload.success && realtimePayload.data) {
+          console.log('[EEG Autofill] Real-time collection successful!', realtimePayload.data);
+          toast.success('EEG data collected automatically!', {
+            position: "top-right",
+            autoClose: 3000,
+          });
+          
+          const normalized = normalizeEegAverages(realtimePayload.data);
+          if (normalized) {
+            return { bands: normalized, raw: realtimePayload };
+          }
+          // Fallback normalization
+          const fallback = realtimePayload.data;
+          const maybeNorm = normalizeEegAverages(fallback);
+          if (maybeNorm) return { bands: maybeNorm, raw: realtimePayload };
+          return { bands: fallback, raw: realtimePayload };
+        }
+      }
+    } catch (realtimeErr) {
+      console.warn('[EEG Autofill] Real-time collection failed, trying fallback:', realtimeErr);
+      // Continue to fallback method below
+    }
+    
+    // FALLBACK: Use old CSV-based method
+    try {
+      console.log('[EEG Autofill] Using fallback method (CSV/old)...');
       const res = await fetch(`${serverBase}/latest_avg_eeg`);
       if (!res.ok) throw new Error(`status ${res.status}`);
       const payload = await res.json();
@@ -525,8 +563,8 @@ const RealTimeTest = () => {
       // final fallback: return raw under bands as-is (so UI can still show)
       return { bands: fallback, raw: payload };
     } catch (err) {
-      console.error('fetchLatestEegAvg error', err);
-      setAutoFillError(`Could not fetch latest EEG averages from ${serverBase}`);
+      console.error('fetchLatestEegAvg error (both methods failed)', err);
+      setAutoFillError(`Could not fetch EEG data. Please ensure EEG device is connected and try again.`);
       return null;
     } finally {
       setIsAutoFilling(false);
